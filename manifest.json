@@ -1,0 +1,42 @@
+{
+  "name": "Tiki History",
+  "version": "1.0",
+  "description": "Explore the history of orders on Tiki.vn",
+  "permissions": [
+    "storage",
+    "http://*.tiki.vn/*",
+    "https://*.tiki.vn/*"
+  ],
+  "options_page": "options.html",
+  "background": {
+    "scripts": [
+      "scripts/background.js"
+    ],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*.tiki.vn/*",
+        "https://*.tiki.vn/*"
+      ],
+      "css": [
+        "css/style.css"
+      ],
+      "js": [
+        "scripts/libs/jquery.min.js",
+        "scripts/libs/apexcharts.min.js",
+        "scripts/libs/moment.min.js",
+        "scripts/options.js",
+        "scripts/utils.js"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "images/icon-16.png",
+    "32": "images/icon-32.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  },
+  "manifest_version": 2
+}

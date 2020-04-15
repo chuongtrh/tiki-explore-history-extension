@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charshet="utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <script src="scripts/libs/jquery.min.js"></script>
+  <script src="scripts/libs/apexcharts.min.js"></script>
+  <script src="scripts/libs/moment.min.js"></script>
+  <script src="scripts/utils.js"></script>
+  <script src="scripts/options.js"></script>
+
+  <style type="text/css">
+    .back-link a {
+      color: #4ca340;
+      text-decoration: none;
+      border-bottom: 1px #4ca340 solid;
+    }
+
+    .back-link a:hover,
+    .back-link a:focus {
+      color: #408536;
+      text-decoration: none;
+      border-bottom: 1px #408536 solid;
+    }
+
+    h1 {
+      height: 100%;
+      /* The html and body elements cannot have any padding or margin. */
+      margin: 0;
+      font-size: 14px;
+      font-family: "Open Sans", sans-serif;
+      font-size: 32px;
+      margin-bottom: 3px;
+    }
+
+    .entry-header {
+      text-align: left;
+      margin: 0 auto 50px auto;
+      width: 80%;
+      max-width: 978px;
+      position: relative;
+      z-index: 10001;
+    }
+
+    #main-content {
+      padding-top: 40px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="main-content">
+    <header class="entry-header"></header>
+
+    <div id="loader-wrapper">
+      <div id="loader"></div>
+
+      <div class="loader-section section-left"></div>
+      <div class="loader-section section-right"></div>
+    </div>
+
+    <div id="content">
+      <h2 class="entry-title" id="wellcome"></h2>
+
+      <div class="lineContent" id="totalOrder"></div>
+      <div class="lineContent" id="totalAmount"></div>
+      <div class="lineContent" id="firstOrder"></div>
+
+      <div class="mychart">
+        <table style="width: 100%;height: 50%; table-layout: fixed">
+          <tr style=" height: 50%;">
+            <td style="width: 50%;height: 100%;">
+              <div id="chartOrder"></div>
+            </td>
+            <td style="width: 50%;height: 100%;">
+              <div id="chartCategory"></div>
+            </td>
+          </tr>
+        </table>
+        <table style="width: 100%;height: 50%; table-layout: fixed">
+          <tr style=" height: 50%;">
+            <td style="width: 50%;height: 100%;">
+              <div id="chartBrand"></div>
+            </td>
+            <td style="width: 50%;height: 100%;">
+              <div id="chartSeller"></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div id="chartTimeline" style="max-height: 500px;"></div>
+    </div>
+    <div style="text-align: center;">Report issues on <a
+        href='https://github.com/chuongtrh/tiki-explore-history-extension/issues'>github</a>
+      @chuongtrh
+    </div>
+  </div>
+</body>
+
+</html>
