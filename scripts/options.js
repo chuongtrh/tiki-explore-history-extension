@@ -45,24 +45,52 @@ class Tiki {
   }
 
   startCollectData(callback) {
-    if (localStorage["tikiData"] != undefined) {
-      let res = JSON.parse(localStorage["tikiData"]);
+
+    if (localStorage["tikiData"] != undefined && localStorage['saveDate'] != undefined && moment().diff(moment(localStorage['saveDate']), 'days') == 0) {
+      let datas = JSON.parse(localStorage["tikiData"]);
       setTimeout(function () {
-        callback(null, res.data, res.paging);
+        callback(null, datas);
       }, 300);
     } else {
+      this.getOrder(function (err, datas) {
+        localStorage["tikiData"] = JSON.stringify(datas);
+        localStorage['saveDate'] = moment().format();
+        callback(err, datas);
+      });
+    }
+  }
+  getOrder(callback) {
+    var running = function (page, cb) {
+      console.log('page', page);
       $.ajax({
-        url: "https://tiki.vn/api/v2/me/orders?page=1&limit=100&include=items,price_summary",
+        url: `https://tiki.vn/api/v2/me/orders?page=${page}&limit=100&include=items,price_summary`,
         type: "GET",
         success: function (res) {
-          localStorage["tikiData"] = JSON.stringify(res);
-          callback(null, res.data, res.paging);
+          cb(null, res.data, res.paging);
         },
         error: function (request, status, error) {
-          callback(error, null, null)
+          cb(error, null, null)
         },
       });
     }
+
+    let datas = [];
+    let page = 1;
+
+    var cb = function (err, data, paging) {
+      if (err) {
+        callback(err, null)
+      } else {
+        datas = datas.concat(data);
+        if (paging.current_page == paging.last_page) {
+          callback(null, datas)
+        } else {
+          page++
+          running(page, cb)
+        }
+      }
+    }
+    running(page, cb)
   }
 }
 
@@ -144,13 +172,6 @@ function processDatas(datas) {
   });
 
   totalOrder = datas.length;
-
-  //   console.log("totalMoney", totalMoney);
-  //   console.log("totalOrder", totalOrder);
-  //   console.log("orderStatusSuccess", orderStatusSuccess);
-  //   console.log("orderStatusCancel", orderStatusCancel);
-  //   console.log("orderStatusOther", orderStatusOther);
-  //   console.log("transactionTimeline", transactionTimeline);
 }
 
 function showChartOrder() {
@@ -224,7 +245,7 @@ function showChartBrand() {
   let datas = [];
   let labels = [];
   let brands = Object.values(brandData);
-  brands.sort((a, b) => a.count - b.count)
+  brands.sort((a, b) => b.count - a.count)
 
   for (let brand of brands) {
     datas.push(brand.count);
@@ -414,7 +435,7 @@ let tiki = new Tiki();
       setChildTextNode("wellcome", `Xin chào, ${info.name}`);
       setChildTextNode("accountCreatedAt", `Ngày tạo tài khoản: <b>${accountCreatedAt}</b>`);
 
-      tiki.startCollectData(function (err, datas, paging) {
+      tiki.startCollectData(function (err, datas) {
         stopLoading();
         if (err) {
           alert("Ooop.Something is wrong.");
