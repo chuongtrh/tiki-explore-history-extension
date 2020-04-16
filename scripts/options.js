@@ -32,7 +32,7 @@ class Tiki {
       url: "https://tiki.vn/api/v2/me",
       type: "GET",
       success: function (res) {
-        if (res != undefined) {
+        if (res != undefined && res.id > 0) {
           callback(null, { name: res.name, created_date: res.created_date });
         } else {
           callback(new Error('No Login'), null)
@@ -61,7 +61,6 @@ class Tiki {
   }
   getOrder(callback) {
     var running = function (page, cb) {
-      console.log('page', page);
       $.ajax({
         url: `https://tiki.vn/api/v2/me/orders?page=${page}&limit=100&include=items,price_summary`,
         type: "GET",
@@ -397,7 +396,7 @@ function setChildTextNode(elementId, text) {
 }
 
 function showLogin() {
-  alert("Bạn chưa đăng nhập tiki. Đến trang tiki.vn đăng nhập và quay lại nhé :)");
+  alert("Bạn chưa đăng nhập Tiki. Đến trang tiki.vn đăng nhập và quay lại nhé :)");
   window.open("https://tiki.vn/");
 }
 
