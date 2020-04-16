@@ -8,12 +8,6 @@
     "https://*.tiki.vn/*"
   ],
   "options_page": "options.html",
-  "background": {
-    "scripts": [
-      "scripts/background.js"
-    ],
-    "persistent": false
-  },
   "content_scripts": [
     {
       "matches": [

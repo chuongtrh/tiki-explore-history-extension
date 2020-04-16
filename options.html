@@ -37,15 +37,6 @@
       margin-bottom: 3px;
     }
 
-    .entry-header {
-      text-align: left;
-      margin: 0 auto 50px auto;
-      width: 80%;
-      max-width: 978px;
-      position: relative;
-      z-index: 10001;
-    }
-
     #main-content {
       padding-top: 40px;
     }
@@ -54,21 +45,22 @@
 
 <body>
   <div id="main-content">
-    <header class="entry-header"></header>
 
     <div id="loader-wrapper">
       <div id="loader"></div>
-
       <div class="loader-section section-left"></div>
       <div class="loader-section section-right"></div>
     </div>
 
     <div id="content">
       <h2 class="entry-title" id="wellcome"></h2>
-
+      <div class="lineContent" id="accountCreatedAt"></div>
       <div class="lineContent" id="totalOrder"></div>
       <div class="lineContent" id="totalAmount"></div>
       <div class="lineContent" id="firstOrder"></div>
+      <div class="lineContent" id="topItemOrder"></div>
+      <div class="lineContent" id="topCategory"></div>
+      <div class="lineContent" id="topSeller"></div>
 
       <div class="mychart">
         <table style="width: 100%;height: 50%; table-layout: fixed">
@@ -95,7 +87,7 @@
       <div id="chartTimeline" style="max-height: 500px;"></div>
     </div>
     <div style="text-align: center;">Report issues on <a
-        href='https://github.com/chuongtrh/tiki-explore-history-extension/issues'>github</a>
+        href='https://github.com/chuongtrh/tiki-explore-history-extension/issues' target="_blank">github</a>
       @chuongtrh
     </div>
   </div>

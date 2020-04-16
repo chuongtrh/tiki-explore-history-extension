@@ -15,26 +15,54 @@ let firstOrderDate;
 let brandData = {};
 let categoryData = {};
 let sellerData = {};
+let topSeller = {};
+let topCategory = {};
+let topItemOrder = {
+  price: 0,
+  name: '',
+  code: '',
+  orderDate: null
+};
 
-function startCollectData(callback) {
-  if (localStorage["tikiData"] != undefined) {
-    let res = JSON.parse(localStorage["tikiData"]);
-    setTimeout(function () {
-      stopLoading();
-      callback(res.data, res.paging);
-    }, 300);
-  } else {
+class Tiki {
+  constructor() {
+  }
+  getMyProfile(callback) {
     $.ajax({
-      url: "https://tiki.vn/api/v2/me/orders?page=1&limit=100&include=items,price_summary",
+      url: "https://tiki.vn/api/v2/me",
       type: "GET",
       success: function (res) {
-        localStorage["tikiData"] = JSON.stringify(res);
-        callback(res.data, res.paging);
+        if (res != undefined) {
+          callback(null, { name: res.name, created_date: res.created_date });
+        } else {
+          callback(new Error('No Login'), null)
+        }
       },
       error: function (request, status, error) {
-        alert("Ooop.Something is wrong.");
+        callback(error, null)
       },
     });
+  }
+
+  startCollectData(callback) {
+    if (localStorage["tikiData"] != undefined) {
+      let res = JSON.parse(localStorage["tikiData"]);
+      setTimeout(function () {
+        callback(null, res.data, res.paging);
+      }, 300);
+    } else {
+      $.ajax({
+        url: "https://tiki.vn/api/v2/me/orders?page=1&limit=100&include=items,price_summary",
+        type: "GET",
+        success: function (res) {
+          localStorage["tikiData"] = JSON.stringify(res);
+          callback(null, res.data, res.paging);
+        },
+        error: function (request, status, error) {
+          callback(error, null, null)
+        },
+      });
+    }
   }
 }
 
@@ -67,6 +95,15 @@ function processDatas(datas) {
       }
 
       data.items.forEach(item => {
+
+        //topItemOrder
+        if (topItemOrder.price <= item.grand_total) {
+          topItemOrder.price = item.grand_total;
+          topItemOrder.name = item.product_name;
+          topItemOrder.orderDate = moment(data.created_at * 1000);
+          topItemOrder.code = data.code;
+        }
+
         //brand
         if (item.brand) {
           if (brandData[item.brand] != undefined) {
@@ -79,10 +116,10 @@ function processDatas(datas) {
           }
         }
         //category
-        if (categoryData[item.product_root_category_id] != undefined) {
-          categoryData[item.product_root_category_id].count++;
+        if (categoryData[item.product_catalog_group_name] != undefined) {
+          categoryData[item.product_catalog_group_name].count++;
         } else {
-          categoryData[item.product_root_category_id] = {
+          categoryData[item.product_catalog_group_name] = {
             name: item.product_catalog_group_name,
             count: 1
           }
@@ -148,7 +185,9 @@ function showChartCategory() {
   let datas = [];
   let labels = [];
   let categorys = Object.values(categoryData);
-  categorys.sort((a, b) => a.count - b.count)
+  categorys.sort((a, b) => b.count - a.count)
+
+  topCategory = categorys[0];
 
   for (let category of categorys) {
     datas.push(category.count);
@@ -222,7 +261,9 @@ function showChartSeller() {
   let datas = [];
   let labels = [];
   let sellers = Object.values(sellerData);
-  sellers.sort((a, b) => a.count - b.count)
+  sellers.sort((a, b) => b.count - a.count)
+
+  topSeller = sellers[0];
 
   for (let seller of sellers) {
     datas.push(seller.count);
@@ -288,7 +329,7 @@ function showChartTimeline() {
       type: 'line',
     },
     stroke: {
-      width: [0, 4],
+      width: [0, 3],
       curve: 'smooth'
     },
     dataLabels: {
@@ -328,94 +369,6 @@ function showChartTimeline() {
 
   var chart = new ApexCharts(document.getElementById("chartTimeline"), options);
   chart.render();
-
-  // new Chart(document.getElementById("chartTimeline"), {
-  //   type: "bar",
-  //   data: {
-  //     labels: labelTimelines,
-  //     datasets: [
-  //       {
-  //         label: "Order",
-  //         data: orders,
-  //         borderColor: "rgba(255, 99, 132, 1)",
-  //         backgroundColor: "rgba(255, 99, 132, 0.5)",
-  //         yAxisID: "y-axis-1",
-  //         order: 2,
-  //       },
-  //       {
-  //         label: "Amount",
-  //         data: fees,
-  //         type: "line",
-  //         fill: false,
-  //         borderColor: window.chartColors.blue,
-  //         yAxisID: "y-axis-2",
-  //         order: 1,
-  //       },
-  //     ],
-  //   },
-  //   options: {
-  //     responsive: true,
-  //     scales: {
-  //       yAxes: [
-  //         {
-  //           type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-  //           display: true,
-  //           position: "left",
-  //           id: "y-axis-1",
-  //         },
-  //         {
-  //           type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-  //           display: true,
-  //           position: "right",
-  //           id: "y-axis-2",
-
-  //           // grid line settings
-  //           gridLines: {
-  //             drawOnChartArea: false, // only want the grid lines for one axis to show up
-  //           },
-  //           ticks: {
-  //             callback: function (value) {
-  //               return formatCurrency(value);
-  //             },
-  //           },
-  //         },
-  //       ],
-  //     },
-  //     tooltips: {
-  //       callbacks: {
-  //         label: function (t, d) {
-  //           var xLabel = d.datasets[t.datasetIndex].label;
-  //           var yLabel = t.yLabel;
-  //           if (t.datasetIndex === 0) return xLabel + ": " + yLabel;
-  //           else if (t.datasetIndex === 1)
-  //             return xLabel + ": " + formatCurrency(yLabel);
-  //         },
-  //       },
-  //     },
-  //     title: {
-  //       display: true,
-  //       text: "Dòng thời gian",
-  //     },
-  //   },
-  // });
-}
-
-function getMyProfile(callback) {
-  $.ajax({
-    url: "https://tiki.vn/api/v2/me",
-    type: "GET",
-    success: function (res) {
-      if (res != undefined) {
-        let name = res.name;
-        callback(name);
-      } else {
-        showLogin();
-      }
-    },
-    error: function (request, status, error) {
-      alert("Ooop.Something is wrong.");
-    },
-  });
 }
 
 function setChildTextNode(elementId, text) {
@@ -432,28 +385,53 @@ function showInfo() {
     "firstOrder",
     `Ngày đơn hàng đầu tiên: <b>${firstOrderDate.format("DD MMM YYYY")}</b>`
   );
+  setChildTextNode(
+    "topItemOrder",
+    `Chi nhiều nhất <b>${formatCurrency(topItemOrder.price)}</b> cho <a href='https://tiki.vn/sales/order/view/${topItemOrder.code}'target="_blank">${topItemOrder.name}</a> vào ngày <b>${topItemOrder.orderDate.format("DD MMM YYYY")}</b>`
+  );
   setChildTextNode("totalOrder", `Số đơn hoàn tất: <b>${orderStatusSuccess}</b>`);
   setChildTextNode("totalAmount", `Tổng tiền: <b>${formatCurrency(totalMoney)}</b>`);
+  setChildTextNode("topCategory", `Top danh mục: <b>${topCategory.name}</b>`);
+  setChildTextNode("topSeller", `Top nhà cung cấp: <b>${topSeller.name}</b>`);
+
 }
 
 function stopLoading() {
   $('body').addClass('loaded');
   $('h1').css('color', '#222222');
 }
-function pageLoad() {
-  getMyProfile(function (name) {
-    setChildTextNode("wellcome", `Xin chào, ${name}`);
-    startCollectData(function (datas, paging) {
-      stopLoading();
-      processDatas(datas);
-      showInfo();
-      showChartOrder();
-      showChartCategory();
-      showChartBrand();
-      showChartSeller()
-      showChartTimeline();
-    });
-  });
-}
 
-pageLoad();
+let tiki = new Tiki();
+
+//Page Load
+(function pageLoad() {
+  tiki.getMyProfile(function (err, info) {
+    if (err) {
+      showLogin();
+    } else {
+
+      let accountCreatedAt = moment(info.created_date * 1000).format("DD MMM YYYY")
+      setChildTextNode("wellcome", `Xin chào, ${info.name}`);
+      setChildTextNode("accountCreatedAt", `Ngày tạo tài khoản: <b>${accountCreatedAt}</b>`);
+
+      tiki.startCollectData(function (err, datas, paging) {
+        stopLoading();
+        if (err) {
+          alert("Ooop.Something is wrong.");
+        } else {
+          if (datas.length > 0) {
+            processDatas(datas);
+
+            showChartOrder();
+            showChartCategory();
+            showChartBrand();
+            showChartSeller()
+            showChartTimeline();
+            showInfo();
+
+          }
+        }
+      });
+    }
+  });
+})();
