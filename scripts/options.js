@@ -397,7 +397,7 @@ function setChildTextNode(elementId, text) {
 }
 
 function showLogin() {
-  alert("You need to login Tiki. Go to tiki.vn");
+  alert("Bạn chưa đăng nhập tiki. Đến trang tiki.vn đăng nhập và quay lại nhé :)");
   window.open("https://tiki.vn/");
 }
 
